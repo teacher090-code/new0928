@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>별과 우주: STEP 6 - 별의 거리와 연주시차의 관계</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #38bdf8;
+      --accent-hover: #0284c7;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --correct-color: #22c55e;
+      --incorrect-color: #ef4444;
+      --highlight-red: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: var(--accent-color);
+      margin-bottom: 6px;
+    }
+
+    .step-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      border: 1px solid #334155;
+    }
+
+    .step-title {
+      font-size: 1.3rem;
+      color: var(--accent-color);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-badge {
+      background: #0284c7;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .thought-connection {
+      background: #0f172a;
+      padding: 14px 18px;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-color);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+
+    .thought-connection strong {
+      color: #fde047;
+    }
+
+    .sim-controls {
+      background: #0f172a;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .slider-row label {
+      font-weight: bold;
+      color: var(--accent-color);
+      min-width: 110px;
+      font-size: 0.95rem;
+    }
+
+    .slider-row input[type=range] {
+      flex: 1;
+      height: 8px;
+      border-radius: 4px;
+      background: #334155;
+      outline: none;
+      accent-color: var(--accent-color);
+      cursor: pointer;
+    }
+
+    .dashboard-row {
+      display: flex;
+      justify-content: space-around;
+      background: #1e293b;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .dash-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dash-item .label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .dash-item .value {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fde047;
+    }
+
+    .dash-item .value.red {
+      color: #ef4444;
+    }
+
+    canvas {
+      width: 100%;
+      height: 440px;
+      background-color: #020617;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #475569;
+      display: block;
+    }
+
+    .quiz-box, .essay-box {
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 18px;
+      border: 1px solid #334155;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      color: #f8fafc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fill-blank-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 0.98rem;
+      margin-top: 10px;
+    }
+
+    .sub-question {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .text-input {
+      width: 110px;
+      padding: 6px 10px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .text-input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .ox-container {
+      display: flex;
+      gap: 15px;
+      margin-top: 12px;
+    }
+
+    .ox-btn {
+      flex: 1;
+      padding: 12px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ox-btn:hover {
+      background: #334155;
+    }
+
+    .guide-prompt {
+      background: #1e293b;
+      padding: 14px 16px;
+      border-radius: 6px;
+      border-left: 3px solid #fde047;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.7;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+
+    .locked {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .btn {
+      background-color: var(--accent-color);
+      color: #0f172a;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover { background-color: var(--accent-hover); color: #fff; }
+
+    /* STEP 7 기본 잠금 버튼 스타일 (회색) */
+    .btn-step7 {
+      background-color: #334155 !important;
+      background-image: none !important;
+      color: #94a3b8 !important;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: not-allowed;
+      width: 100%;
+      margin-top: 20px;
+      opacity: 0.6;
+      box-shadow: none !important;
+      transition: all 0.3s;
+    }
+
+    /* 모든 문제를 맞혔을 때 활성화되는 스타일 (파란색) */
+    .btn-step7.active {
+      background: linear-gradient(135deg, #38bdf8, #0284c7) !important;
+      color: #ffffff !important;
+      cursor: pointer !important;
+      opacity: 1 !important;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3) !important;
+    }
+
+    .btn-step7.active:hover {
+      background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4) !important;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      display: none;
+    }
+    .feedback.correct { background: rgba(34, 197, 94, 0.2); color: var(--correct-color); border: 1px solid var(--correct-color); display: block; }
+    .feedback.incorrect { background: rgba(239, 68, 68, 0.2); color: var(--incorrect-color); border: 1px solid var(--incorrect-color); display: block; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🌌 별과 우주 탐구 시뮬레이션</h1>
+    <p>STEP 6: 별의 거리와 연주시차의 관계</p>
+  </header>
+
+  <div class="step-card">
+    <div class="step-title">
+      <span class="step-badge">STEP 6</span>
+      별까지의 거리(d)와 연주시차(p)의 관계
+    </div>
+
+    <!-- 사고의 연결 -->
+    <div class="thought-connection">
+      💡 <strong>사고의 연결:</strong> "STEP 5에서 우리는 직각삼각형을 이용해 연주시차(p)를 정의했습니다. 그렇다면 **별이 더 멀리 떨어져 있을수록** 지구에서 관측되는 연주시차(p)의 크기는 어떻게 변할까요? 직접 별의 거리를 조절하며 관찰해 봅시다."
+    </div>
+
+    <!-- 시뮬레이션 컨트롤 -->
+    <div class="sim-controls">
+      <div class="slider-row">
+        <label for="distSlider">⭐ 별의 거리 (d)</label>
+        <input type="range" id="distSlider" min="1.0" max="5.0" step="0.1" value="1.0" oninput="onSliderChange()">
+      </div>
+      <div class="dashboard-row">
+        <div class="dash-item">
+          <span class="label">상대적 거리 (d)</span>
+          <span class="value" id="distVal">1.0</span>
+        </div>
+        <div class="dash-item">
+          <span class="label">연주시차 (p ∝ 1/d)</span>
+          <span class="value red" id="parallaxVal">1.00"</span>
+        </div>
+      </div>
+    </div>
+
+    <canvas id="canvasStep6"></canvas>
+
+    <!-- 1단계: 관찰 질문 -->
+    <div class="quiz-box">
+      <div class="question-title">❓ 1단계: 시뮬레이션 관찰 질문</div>
+      <div class="fill-blank-group">
+        <div class="sub-question">
+          <span>1) 별까지의 거리가 멀어질수록 연주시차 각도의 크기는 점점 (</span>
+          <input type="text" id="q1Answer1" class="text-input" placeholder="입력">
+          <span>).</span>
+        </div>
+        <div class="sub-question">
+          <span>2) 따라서 별까지의 거리와 연주시차의 크기는 서로 (</span>
+          <input type="text" id="q1Answer2" class="text-input" placeholder="입력">
+          <span>) 관계에 있다.</span>
+        </div>
+      </div>
+      <button class="btn" style="margin-top: 16px; width: 100%;" onclick="checkQ1()">1단계 정답 확인</button>
+      <div id="q1-feedback" class="feedback"></div>
+    </div>
+
+    <!-- 2단계: 개념 다지기 OX 퀴즈 -->
+    <div id="q2Section" class="quiz-box locked">
+      <div class="question-title">
+        <span>❓ 2단계: 개념 다지기 OX 퀴즈</span>
+        <span id="lockStatusQ2" style="font-size: 0.8rem; color: #ef4444; font-weight: normal;">🔒 (1단계를 풀어주세요)</span>
+      </div>
+      <p style="margin-bottom: 10px; font-size: 0.95rem;">
+        <strong>Q. 연주시차가 작게 측정된 별일수록 지구에서 더 가까운 별이다.</strong>
+      </p>
+      <div class="ox-container">
+        <button class="ox-btn" onclick="checkQ2('O')">O (맞다)</button>
+        <button class="ox-btn" onclick="checkQ2('X')">X (틀리다)</button>
+      </div>
+      <div id="q2-feedback" class="feedback"></div>
+    </div>
+
+    <!-- 3단계: 서술형 학생 스스로 정리하기 -->
+    <div id="essaySection" class="essay-box locked">
+      <div class="question-title">
+        <span>📝 3단계: 학생 스스로 정리하기</span>
+        <span id="lockStatusEssay" style="font-size: 0.8rem; color: #ef4444; font-weight: normal;">🔒 (2단계를 풀어주세요)</span>
+      </div>
+      
+      <div class="guide-prompt">
+        📌 <strong>정리하기 안내:</strong><br>
+        별까지의 거리가 변함에 따라 연주시차가 어떻게 달라지는지, 그리고 두 값 사이에 어떤 관계가 성립하는지 적어보세요.
+      </div>
+
+      <textarea id="studentEssay" placeholder="위의 상단 슬라이더를 조작하며 관찰한 내용과 핵심 개념을 바탕으로 완벽한 문장으로 적어보세요." disabled></textarea>
+      
+      <button id="submitEssayBtn" class="btn" style="margin-top: 12px; width: 100%; font-size: 1rem;" onclick="submitEssay()" disabled>정리 내용 채점하기</button>
+      <div id="essay-feedback" class="feedback"></div>
+    </div>
+
+    <!-- STEP 7 이동 버튼 -->
+    <button id="nextBtn" class="btn-step7" disabled onclick="goToStep7()">🔒 위 탐구 문제들을 모두 맞춰야 STEP 7로 이동할 수 있습니다</button>
+
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvasStep6');
+  const ctx = canvas.getContext('2d');
+  
+  let distanceFactor = 1.0;
+
+  // 정답 판정 상태 관리 변수
+  let isQ1Correct = false;
+  let isQ2Correct = false;
+  let isEssayCorrect = false;
+
+  // 모든 문제를 완수했는지 확인하고 STEP 7 이동 버튼 활성화
+  function checkAllClear() {
+    const nextBtn = document.getElementById('nextBtn');
+    if (isQ1Correct && isQ2Correct && isEssayCorrect) {
+      nextBtn.disabled = false;
+      nextBtn.classList.add('active');
+      nextBtn.innerText = 'STEP 7: 파섹(pc) 단위와 거리의 공식 계산하기 ➔';
+    } else {
+      nextBtn.disabled = true;
+      nextBtn.classList.remove('active');
+      nextBtn.innerText = '🔒 위 탐구 문제들을 모두 맞춰야 STEP 7로 이동할 수 있습니다';
+    }
+  }
+
+  function onSliderChange() {
+    distanceFactor = parseFloat(document.getElementById('distSlider').value);
+    document.getElementById('distVal').innerText = distanceFactor.toFixed(1);
+    
+    const parallaxVal = (1.0 / distanceFactor).toFixed(2);
+    document.getElementById('parallaxVal').innerText = parallaxVal + '"';
+    
+    draw();
+  }
+
+  function draw() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, w, h);
+
+    const sunX = w / 2;
+    const sunY = h - 60; 
+    const orbitRadiusX = 200;
+    
+    const earth1X = sunX - orbitRadiusX;
+    const earth1Y = sunY;
+    const earth7X = sunX + orbitRadiusX;
+    const earth7Y = sunY;
+
+    const baseDistancePx = 50; 
+    const starY = sunY - (baseDistancePx * distanceFactor + 60); 
+    const starX = sunX;
+
+    // 1. 지구 공전 궤도
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.ellipse(sunX, sunY, orbitRadiusX, 30, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 2. 수직선 (태양-별)
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(sunX, sunY);
+    ctx.lineTo(starX, starY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 3. 지구-별 관측선
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(earth1X, earth1Y);
+    ctx.lineTo(starX, starY);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(earth7X, earth7Y);
+    ctx.lineTo(starX, starY);
+    ctx.stroke();
+
+    // 4. 연주시차 각도 영역 빨간색 채우기
+    const angleToEarth1 = Math.atan2(earth1Y - starY, earth1X - starX);
+    const angleToSun    = Math.atan2(sunY - starY, sunX - starX);
+
+    ctx.fillStyle = 'rgba(239, 68, 68, 0.35)';
+    ctx.beginPath();
+    ctx.moveTo(starX, starY);
+    ctx.arc(starX, starY, 50, angleToSun, angleToEarth1);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(starX, starY, 50, angleToSun, angleToEarth1);
+    ctx.stroke();
+
+    ctx.fillStyle = '#ef4444';
+    ctx.font = 'bold 14px Pretendard, sans-serif';
+    ctx.textAlign = 'right';
+    const currentP = (1.0 / distanceFactor).toFixed(2);
+    ctx.fillText(`🔥 연주시차 (p = ${currentP}")`, starX - 15, starY + 65);
+
+    // 직각 표시
+    ctx.strokeStyle = '#fde047';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(sunX - 14, sunY);
+    ctx.lineTo(sunX - 14, sunY - 14);
+    ctx.lineTo(sunX, sunY - 14);
+    ctx.stroke();
+
+    // 5. 천체 표시
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fca5a5';
+    ctx.font = '12px Pretendard, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('☀️ 태양', sunX, sunY + 25);
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(earth1X, earth1Y, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 12px Pretendard, sans-serif';
+    ctx.fillText('🌍 1월 지구', earth1X, earth1Y + 22);
+
+    ctx.fillStyle = '#64748b';
+    ctx.beginPath();
+    ctx.arc(earth7X, earth7Y, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.arc(starX, starY, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowColor = '#facc15';
+    ctx.shadowBlur = 12;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#fef08a';
+    ctx.font = 'bold 14px Pretendard, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`⭐ 별 (거리 d = ${distanceFactor.toFixed(1)})`, starX, starY - 18);
+  }
+
+  // 1단계 채점
+  function checkQ1() {
+    const a1 = document.getElementById('q1Answer1').value.trim();
+    const a2 = document.getElementById('q1Answer2').value.trim();
+    const fb = document.getElementById('q1-feedback');
+    const q2Section = document.getElementById('q2Section');
+    const lockStatusQ2 = document.getElementById('lockStatusQ2');
+
+    const isA1Correct = a1.includes('작') || a1.includes('줄') || a1.includes('감소');
+    const isA2Correct = a2.includes('반비례');
+
+    if (isA1Correct && isA2Correct) {
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정답입니다! 별까지의 거리가 멀어질수록 연주시차 각도는 점점 작아지며, 두 값은 서로 반비례 관계에 있습니다! 2단계 OX 퀴즈가 해제되었습니다.';
+      
+      isQ1Correct = true;
+      q2Section.classList.remove('locked');
+      lockStatusQ2.innerText = '🔓 (해제됨)';
+      lockStatusQ2.style.color = '#22c55e';
+    } else {
+      fb.className = 'feedback incorrect';
+      let msg = '❌ 오답이 있습니다. ';
+      if (!isA1Correct && !isA2Correct) {
+        msg += '상단의 슬라이더를 오른쪽으로 움직이면서 빨간색 각도 영역의 변화를 관찰하고 관계를 생각해 보세요!';
+      } else if (!isA1Correct) {
+        msg += '1번 항목을 확인해 보세요. 슬라이더를 움직이면 빨간색 연주시차 각도의 크기가 어떻게 변하나요?';
+      } else {
+        msg += '2번 항목을 확인해 보세요. 거리가 커질 때 각도가 작아지는 관계를 무슨 관계라고 할까요?';
+      }
+      fb.innerText = msg;
+
+      isQ1Correct = false;
+      // 틀렸을 경우 하위 단계 다시 잠금
+      q2Section.classList.add('locked');
+      lockStatusQ2.innerText = '🔒 (1단계를 풀어주세요)';
+      lockStatusQ2.style.color = '#ef4444';
+    }
+    checkAllClear();
+  }
+
+  // 2단계 OX 채점
+  function checkQ2(choice) {
+    const fb = document.getElementById('q2-feedback');
+    const essaySection = document.getElementById('essaySection');
+    const studentEssay = document.getElementById('studentEssay');
+    const submitEssayBtn = document.getElementById('submitEssayBtn');
+    const lockStatusEssay = document.getElementById('lockStatusEssay');
+
+    if (choice === 'X') {
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정답입니다 (X)! 연주시차가 작게 측정되었다는 것은 별이 더 멀리 떨어져 있음을 의미합니다! 마지막 3단계 정리하기가 해제되었습니다.';
+      
+      isQ2Correct = true;
+      essaySection.classList.remove('locked');
+      studentEssay.disabled = false;
+      submitEssayBtn.disabled = false;
+      lockStatusEssay.innerText = '🔓 (해제됨)';
+      lockStatusEssay.style.color = '#22c55e';
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '❌ 틀렸습니다. 거리와 연주시차는 반비례하므로, 연주시차가 작을수록 더 "멀리" 있는 별입니다.';
+      
+      isQ2Correct = false;
+      // 틀린 답 클릭 시 3단계 재잠금
+      essaySection.classList.add('locked');
+      studentEssay.disabled = true;
+      submitEssayBtn.disabled = true;
+      lockStatusEssay.innerText = '🔒 (2단계를 풀어주세요)';
+      lockStatusEssay.style.color = '#ef4444';
+    }
+    checkAllClear();
+  }
+
+  // 3단계 서술형 채점
+  function submitEssay() {
+    const rawText = document.getElementById('studentEssay').value;
+    const fb = document.getElementById('essay-feedback');
+    const text = rawText.replace(/\s+/g, '');
+
+    if (text.length < 5) {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '⚠️ 답변을 입력해 주세요!';
+      isEssayCorrect = false;
+      checkAllClear();
+      return;
+    }
+
+    const hasInverse = text.includes('반비례');
+    const hasSmallOrDistance = text.includes('작') || text.includes('멀') || text.includes('줄');
+
+    if (hasInverse && hasSmallOrDistance) {
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 완벽합니다! 별의 거리와 연주시차 사이의 반비례 관계를 원리와 함께 훌륭하게 정리하셨습니다!';
+      isEssayCorrect = true;
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '❌ 개념 정리가 조금 부족합니다. 슬라이더를 움직였을 때 각도가 어떻게 변했는지, 그리고 그것이 어떤 수학적 관계인지 언급해 보세요.';
+      isEssayCorrect = false;
+    }
+    checkAllClear();
+  }
+
+  // STEP 7 이동 함수
+  function goToStep7() {
+    const nextBtn = document.getElementById('nextBtn');
+    if (!nextBtn.disabled && isQ1Correct && isQ2Correct && isEssayCorrect) {
+      window.location.href = 'step7.html';
+    }
+  }
+
+  window.addEventListener('resize', draw);
+  onSliderChange(); // 초기 실행
+</script>
+</body>
+</html>
