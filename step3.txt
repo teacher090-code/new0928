@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>별과 우주: STEP 3 - 얼마나 멀리 이동해야 별의 시차가 보일까?</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #38bdf8;
+      --accent-hover: #0284c7;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --correct-color: #22c55e;
+      --incorrect-color: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: var(--accent-color);
+      margin-bottom: 6px;
+    }
+
+    .step-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      border: 1px solid #334155;
+    }
+
+    .step-title {
+      font-size: 1.3rem;
+      color: var(--accent-color);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-badge {
+      background: #0284c7;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .thought-connection {
+      background: #0f172a;
+      padding: 14px 18px;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-color);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+
+    .thought-connection strong {
+      color: #fde047;
+    }
+
+    canvas {
+      width: 100%;
+      height: 380px;
+      background-color: #020617;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #475569;
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #0f172a;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slider-header label {
+      font-size: 0.95rem;
+      font-weight: bold;
+    }
+
+    .distance-badge {
+      background: #0284c7;
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .controls input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .quiz-box, .essay-box {
+      background: #0f172a;
+      padding: 18px;
+      border-radius: 8px;
+      margin-top: 18px;
+      border: 1px solid #334155;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      color: #f8fafc;
+    }
+
+    .ox-options {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .ox-btn {
+      flex: 1;
+      padding: 12px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      background: #1e293b;
+      color: var(--text-color);
+      border: 2px solid #475569;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ox-btn:hover {
+      border-color: var(--accent-color);
+      background: #334155;
+    }
+
+    .ox-btn.selected {
+      background: var(--accent-color);
+      color: #0f172a;
+      border-color: var(--accent-color);
+    }
+
+    .fill-blank-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    select {
+      padding: 8px 14px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .btn {
+      background-color: var(--accent-color);
+      color: #0f172a;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover { background-color: var(--accent-hover); color: #fff; }
+
+    .btn-step4 {
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      color: #ffffff;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 15px;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+      transition: all 0.2s;
+    }
+
+    .btn-step4:hover {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      display: none;
+    }
+    .feedback.correct { background: rgba(34, 197, 94, 0.2); color: var(--correct-color); border: 1px solid var(--correct-color); display: block; }
+    .feedback.incorrect { background: rgba(239, 68, 68, 0.2); color: var(--incorrect-color); border: 1px solid var(--incorrect-color); display: block; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🌌 별과 우주 탐구 시뮬레이션</h1>
+    <p>STEP 3: 얼마나 멀리 이동해야 별의 시차가 보일까?</p>
+  </header>
+
+  <div class="step-card">
+    <div class="step-title">
+      <span class="step-badge">STEP 3</span>
+      얼마나 멀리 이동해야 별의 시차가 보일까?
+    </div>
+
+    <!-- 사고의 연결 -->
+    <div class="thought-connection">
+      💡 <strong>사고의 연결:</strong> "사람이 한두 걸음 걷는 것(STEP 2)으로는 별의 위치 변화가 보이지 않았습니다. 그럼 두 관측 지점 사이의 거리를 점점 더 멀리 늘려보면 어떻게 될까요?"
+    </div>
+
+    <!-- 시뮬레이션 설명 -->
+    <p style="margin-bottom: 12px; color: var(--text-muted); font-size: 0.95rem;">
+      슬라이더를 조절하여 <strong>두 관측 지점 사이의 거리</strong>를 늘려보세요. 거리가 멀어짐에 따라 별을 바라보는 두 시선 사이의 <strong>각도(시차)</strong>가 어떻게 변하는지 관찰해 봅시다.
+    </p>
+
+    <canvas id="canvasStep3"></canvas>
+
+    <div class="controls">
+      <div class="slider-header">
+        <label for="distRange">📏 관측 지점 사이의 거리:</label>
+        <span id="dist-text" class="distance-badge">1m (한두 걸음)</span>
+      </div>
+      <input type="range" id="distRange" min="0" max="3" step="1" value="0">
+      <div class="range-labels">
+        <span>1m (한두 걸음)</span>
+        <span>1km (동네 산책)</span>
+        <span>500km (대한민국 반대편)</span>
+        <span>12,700km (지구 반대편)</span>
+      </div>
+    </div>
+
+    <!-- OX 퀴즈 -->
+    <div class="quiz-box">
+      <div class="question-title">❓ OX 퀴즈</div>
+      <p style="font-size: 0.95rem;">
+        "관측하는 두 지점 사이의 거리가 멀어질수록 별의 위치 변화(각도)는 더 커진다."
+      </p>
+      <div class="ox-options">
+        <button class="ox-btn" onclick="selectOX('O')">O (맞다)</button>
+        <button class="ox-btn" onclick="selectOX('X')">X (틀리다)</button>
+      </div>
+      <div id="ox-feedback" class="feedback"></div>
+    </div>
+
+    <!-- 학생 스스로 정리 -->
+    <div class="essay-box">
+      <div class="question-title">📝 학생 스스로 정리하기</div>
+      <div class="fill-blank-group">
+        <span>너무나 멀리 있는 별의 시차를 관측하려면, 인간이 이동할 수 있는</span>
+        <select id="blankChoice">
+          <option value="">-- 선택 --</option>
+          <option value="가장 가까운">가장 가까운</option>
+          <option value="가장 멀리 떨어진">가장 멀리 떨어진</option>
+        </select>
+        <span>두 관측 지점을 찾아야 한다.</span>
+      </div>
+      <button class="btn" style="margin-top: 14px; width: 100%;" onclick="checkFinalSummary()">정리 확인하기</button>
+      <div id="summary-feedback" class="feedback"></div>
+    </div>
+
+    <!-- 심화 질문 및 STEP 4 이동 버튼 -->
+    <div class="quiz-box" style="border-left: 4px solid #38bdf8; background: #1e293b; margin-top: 24px;">
+      <div class="question-title" style="color: #38bdf8;">🚀 심화 질문: 다음 단계로!</div>
+      <p style="font-size: 0.95rem; color: #f8fafc; line-height: 1.7;">
+        지구 반대편(12,700km)까지 멀리 이동했는데도 별의 위치 변화(배경 4.4~4.6)가 <strong>눈으로 구별하기 힘들 만큼 매우 미세</strong>했습니다.<br>
+        그렇다면 <strong>지구 반대편보다 훨씬 더 멀리 떨어진 두 관측 지점</strong>은 과연 어디에 있을까요?<br>
+        <strong>지구가 어디에 있어야 별의 시차를 가장 크게 관측할 수 있을까요?</strong>
+      </p>
+      <button class="btn-step4" onclick="goToStep4()">STEP 4 탐구하러 가기 ➔</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvasStep3');
+  const ctx = canvas.getContext('2d');
+  const distInput = document.getElementById('distRange');
+  const distText = document.getElementById('dist-text');
+
+  // 단계별 배경 투영 간격 설정 (12,700km 지구 반대편일 때 배경 4.4 ~ 4.6 범위 내로 투영)
+  const stages = [
+    { name: '1m (한두 걸음)', offsetRatio: 0.00, desc: '배경 4.5에 완벽히 고정 (시차 0°)' },
+    { name: '1km (동네 산책)', offsetRatio: 0.005, desc: '위치 변화 없음 (배경 4.50)' },
+    { name: '500km (대한민국 반대편)', offsetRatio: 0.03, desc: '미세한 변화 (배경 4.47 ~ 4.53)' },
+    { name: '12,700km (지구 반대편)', offsetRatio: 0.10, desc: '극미세한 변화 (배경 4.40 ~ 4.60)' }
+  ];
+
+  function draw() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    const w = canvas.width;
+    const h = canvas.height;
+    
+    const stageIdx = parseInt(distInput.value);
+    const currentStage = stages[stageIdx];
+    distText.innerText = currentStage.name;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, w, h);
+
+    // 1. 배경 별자리 (상단)
+    const margin = 40;
+    const numSpacing = (w - margin * 2) / 7;
+
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(10, 15, w - 20, 45);
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(10, 15, w - 20, 45);
+
+    for (let i = 0; i < 8; i++) {
+      const x = margin + i * numSpacing;
+      ctx.fillStyle = '#64748b';
+      ctx.beginPath();
+      ctx.arc(x, 26, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = 'bold 13px Pretendard, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`배경 ${i + 1}`, x, 48);
+    }
+
+    // 2. 중앙의 별 (⭐) 위치 설정
+    const starX = w / 2;
+    const starY = 120;
+    const bgY = 37;
+    const observerY = h - 50;
+
+    // 배경 4와 배경 5 사이의 중심(배경 4.5) X 좌표
+    const bg4_X = margin + 3 * numSpacing;
+    const bg5_X = margin + 4 * numSpacing;
+    const bgMidX = (bg4_X + bg5_X) / 2;
+
+    // 현재 단계에서의 배경 투영 오프셋 계산
+    const currentBgOffset = currentStage.offsetRatio * numSpacing;
+    const projA_X = bgMidX - currentBgOffset;
+    const projB_X = bgMidX + currentBgOffset;
+
+    // 3. 관측선이 [배경 투영 점]과 [별 중심(starX, starY)]을 지나서 [관측자 Y] 위치까지 연장되는 X좌표 계산
+    const ratio = (observerY - starY) / (bgY - starY);
+    const obsA_X = starX + (projA_X - starX) * ratio;
+    const obsB_X = starX + (projB_X - starX) * ratio;
+
+    // 4. 관측선 (점선) 그리기 - A지점 (파란색)
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(obsA_X, observerY);
+    ctx.lineTo(projA_X, bgY);
+    ctx.stroke();
+
+    // 관측선 (점선) 그리기 - B지점 (빨간색)
+    ctx.strokeStyle = '#f43f5e';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(obsB_X, observerY);
+    ctx.lineTo(projB_X, bgY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 배경에 찍히는 각 시선의 위치 점
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(projA_X, bgY, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#f43f5e';
+    ctx.beginPath();
+    ctx.arc(projB_X, bgY, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 5. 관측 지점 연결 거리선 (기선)
+    if (stageIdx > 0) {
+      ctx.strokeStyle = '#fde047';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(obsA_X, observerY);
+      ctx.lineTo(obsB_X, observerY);
+      ctx.stroke();
+
+      // 거리 표시 텍스트
+      ctx.fillStyle = '#fde047';
+      ctx.font = 'bold 12px Pretendard, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`이동 거리 (${currentStage.name})`, w / 2, observerY + 22);
+    }
+
+    // 6. 별 그리기
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.arc(starX, starY, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowColor = '#facc15';
+    ctx.shadowBlur = 15;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#fef08a';
+    ctx.font = 'bold 13px Pretendard, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('⭐ 별', starX, starY - 18);
+
+    // 7. 관측자 A, B 위치 표시
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(obsA_X, observerY, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = '11px Pretendard, sans-serif';
+    ctx.fillText('📍 관측 A', obsA_X, observerY - 10);
+
+    ctx.fillStyle = '#f43f5e';
+    ctx.beginPath();
+    ctx.arc(obsB_X, observerY, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillText('📍 관측 B', obsB_X, observerY - 10);
+
+    // 상태 요약 안내
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '13px Pretendard, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`배경 위치 변화: ${currentStage.desc}`, 15, h - 15);
+  }
+
+  distInput.addEventListener('input', draw);
+
+  // OX 퀴즈 처리
+  let selectedOXVal = null;
+  function selectOX(ans) {
+    selectedOXVal = ans;
+    const btns = document.querySelectorAll('.ox-btn');
+    btns.forEach(b => b.classList.remove('selected'));
+
+    if (ans === 'O') btns[0].classList.add('selected');
+    else btns[1].classList.add('selected');
+
+    const fb = document.getElementById('ox-feedback');
+    if (ans === 'O') {
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정답입니다! (O) 관측 지점 사이의 거리가 멀어질수록 미세하지만 별의 시차(위치 변화 각도)는 확실히 더 커집니다.';
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '❌ 다시 생각해 보세요. 두 지점 사이의 거리가 멀어질수록 두 시선이 이루는 각도와 배경 상의 점 간격이 어떻게 변화했나요?';
+    }
+  }
+
+  // 최종 정리 채점
+  function checkFinalSummary() {
+    const val = document.getElementById('blankChoice').value;
+    const fb = document.getElementById('summary-feedback');
+
+    if (!val) {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '⚠️ 빈칸에 들어갈 단어를 선택해 주세요!';
+      return;
+    }
+
+    if (val === '가장 멀리 떨어진') {
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정답입니다! 별이 너무나 멀리 있기 때문에 시차를 관측하려면 우리가 확보할 수 있는 "가장 멀리 떨어진" 두 지점에서 관측해야 합니다.';
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '❌ 다시 선택해 보세요. 가까운 두 지점(1m, 1km)에서는 별의 위치 변화가 전혀 관찰되지 않았습니다.';
+    }
+  }
+
+  // STEP 4 페이지 이동 처리
+  function goToStep4() {
+    window.location.href = 'step4.html';
+  }
+
+  window.addEventListener('resize', draw);
+  draw();
+</script>
+</body>
+</html>
