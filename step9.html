@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>별과 우주: STEP 9 - 최종 개념 정리 및 탐구 보고서 완성</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #38bdf8;
+      --accent-hover: #0284c7;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --correct-color: #22c55e;
+      --incorrect-color: #ef4444;
+      --highlight-yellow: #fde047;
+      --border-color: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: var(--accent-color);
+      margin-bottom: 6px;
+    }
+
+    .step-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      border: 1px solid var(--border-color);
+    }
+
+    .step-title {
+      font-size: 1.3rem;
+      color: var(--accent-color);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-badge {
+      background: #0284c7;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .quiz-box {
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+      transition: opacity 0.3s ease;
+    }
+
+    .quiz-box.locked {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 12px;
+      font-size: 1.05rem;
+      color: var(--highlight-yellow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .lock-status {
+      font-size: 0.85rem;
+      color: #ef4444;
+      font-weight: normal;
+    }
+
+    .question-desc {
+      font-size: 0.95rem;
+      color: #e2e8f0;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .fill-blank-group {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      font-size: 0.98rem;
+    }
+
+    .sub-question {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      line-height: 2;
+    }
+
+    .text-input {
+      padding: 6px 12px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .text-input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    textarea.text-input-full {
+      width: 100%;
+      height: 90px;
+      padding: 10px 12px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      resize: vertical;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+
+    textarea.text-input-full:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .btn {
+      background-color: var(--accent-color);
+      color: #0f172a;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover:not(:disabled) { background-color: var(--accent-hover); color: #fff; }
+    .btn:disabled {
+      background-color: #475569;
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .btn-submit {
+      background-color: #22c55e;
+      color: #0f172a;
+      font-size: 1.1rem;
+      padding: 14px 28px;
+      border-radius: 8px;
+      width: 100%;
+    }
+    .btn-submit:hover:not(:disabled) {
+      background-color: #16a34a;
+      color: #fff;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      display: none;
+    }
+    .feedback.correct { background: rgba(34, 197, 94, 0.2); color: var(--correct-color); border: 1px solid var(--correct-color); display: block; }
+    .feedback.incorrect { background: rgba(239, 68, 68, 0.2); color: var(--incorrect-color); border: 1px solid var(--incorrect-color); display: block; }
+
+    .action-row {
+      margin-top: 25px;
+      padding: 20px;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .submit-notice {
+      display: none;
+      margin-top: 15px;
+      padding: 15px;
+      background: rgba(56, 189, 248, 0.15);
+      border: 2px dashed var(--accent-color);
+      border-radius: 8px;
+      color: var(--highlight-yellow);
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🌌 별과 우주 탐구 시뮬레이션</h1>
+    <p>STEP 9: 스스로 작성하는 최종 탐구 보고서</p>
+  </header>
+
+  <div class="step-card">
+    <div class="step-title">
+      <span class="step-badge">STEP 9</span>
+      개념 정리 퀴즈 & 탐구 보고서 작성
+    </div>
+    <p style="margin-bottom: 20px; color: #cbd5e1; font-size: 0.95rem;">
+      Step 1부터 Step 8까지 직접 시뮬레이션하며 발견한 내용들을 바탕으로 질문에 차례대로 답하여 탐구 보고서를 완성해 보세요!
+    </p>
+
+    <!-- Q1. 연주시차 정의 및 단위 -->
+    <div id="q1Box" class="quiz-box">
+      <div class="question-title">
+        <span>✏️ Q1. 연주시차의 정의와 단위 정리하기</span>
+        <span id="lockStatusQ1" class="lock-status" style="color: #22c55e;">🔓 진행 중</span>
+      </div>
+      <div class="fill-blank-group">
+        <div class="sub-question">
+          <span>1) 지구가 태양 주위를 공전함에 따라 나타나는 별의 시차(각도)의 </span>
+          <input type="text" id="q1_1" class="text-input" style="width: 120px;" placeholder="단어/숫자 입력">
+          <span> 값(=1/2 시차)을 연주시차라고 합니다.</span>
+        </div>
+        <div class="sub-question">
+          <span>2) 연주시차의 단위는 작은 각도를 나타내는 </span>
+          <input type="text" id="q1_2" class="text-input" style="width: 100px;" placeholder="단위 입력">
+          <span>(을)를 사용합니다.</span>
+        </div>
+      </div>
+      <button id="btnQ1" class="btn" style="margin-top: 14px; width: 100%;" onclick="checkQ1()">Q1 정답 확인</button>
+      <div id="q1-feedback" class="feedback"></div>
+    </div>
+
+    <!-- Q2. 거리와 연주시차의 관계 -->
+    <div id="q2Box" class="quiz-box locked">
+      <div class="question-title">
+        <span>✏️ Q2. 거리와 연주시차의 관계</span>
+        <span id="lockStatusQ2" class="lock-status">🔒 (Q1을 먼저 완료하세요)</span>
+      </div>
+      <div class="fill-blank-group">
+        <div class="sub-question">
+          <span>1) 관찰하는 별까지의 거리가 멀어질수록 연주시차의 크기는 점점 </span>
+          <input type="text" id="q2_1" class="text-input" style="width: 110px;" placeholder="답안 입력" disabled>
+          <span>.</span>
+        </div>
+        <div class="sub-question">
+          <span>2) 따라서 별의 연주시차를 측정하면 별까지의 </span>
+          <input type="text" id="q2_2" class="text-input" style="width: 90px;" placeholder="단어 입력" disabled>
+          <span>(을)를 알 수 있습니다.</span>
+        </div>
+      </div>
+      <button id="btnQ2" class="btn" style="margin-top: 14px; width: 100%;" onclick="checkQ2()" disabled>Q2 정답 확인</button>
+      <div id="q2-feedback" class="feedback"></div>
+    </div>
+
+    <!-- Q3. 1pc 정의, 거리 공식, 측정 한계 -->
+    <div id="q3Box" class="quiz-box locked">
+      <div class="question-title">
+        <span>✏️ Q3. 파섹(pc) 정의, 공식 및 측정 한계</span>
+        <span id="lockStatusQ3" class="lock-status">🔒 (Q2를 먼저 완료하세요)</span>
+      </div>
+      <div class="fill-blank-group">
+        <div class="sub-question">
+          <span>1) 연주시차가 </span>
+          <input type="text" id="q3_1" class="text-input" style="width: 110px;" placeholder="숫자+단위 입력" disabled>
+          <span>인 별까지의 거리를 <strong>1 pc(파섹)</strong>이라고 정의합니다.</span>
+        </div>
+        <div class="sub-question">
+          <span>2) 별까지의 거리(pc)를 구하는 공식은 말로 표현하면 [ </span>
+          <input type="text" id="q3_2" class="text-input" style="width: 170px;" placeholder="~~ 분의 ~~" disabled>
+          <span> ] 입니다.</span>
+        </div>
+        <div class="sub-question">
+          <span>3) 연주시차로는 대략 </span>
+          <input type="text" id="q3_3" class="text-input" style="width: 100px;" placeholder="숫자+단위" disabled>
+          <span> 별까지 측정 가능하다.</span>
+        </div>
+      </div>
+      <button id="btnQ3" class="btn" style="margin-top: 14px; width: 100%;" onclick="checkQ3()" disabled>Q3 정답 확인</button>
+      <div id="q3-feedback" class="feedback"></div>
+    </div>
+
+    <!-- Q4. 성찰 질문 1 -->
+    <div id="q4Box" class="quiz-box locked">
+      <div class="question-title">
+        <span>💭 Q4. 최종 성찰 질문 1</span>
+        <span id="lockStatusQ4" class="lock-status">🔒 (Q3을 먼저 완료하세요)</span>
+      </div>
+      <div class="question-desc">
+        연주시차를 이용하면 100pc 까지의 거리의 별의 거리를 구할 수 있다. 100pc보다 멀리 있는 별은 왜 연주시차를 이용하여 거리를 구할 수 없을까?
+      </div>
+      <textarea id="q4_text" class="text-input-full" placeholder="생각을 자유롭게 서술해 보세요." disabled></textarea>
+      <button id="btnQ4" class="btn" style="margin-top: 10px; width: 100%;" onclick="checkQ4()" disabled>Q4 작성 확인</button>
+      <div id="q4-feedback" class="feedback"></div>
+    </div>
+
+    <!-- Q5. 성찰 질문 2 -->
+    <div id="q5Box" class="quiz-box locked">
+      <div class="question-title">
+        <span>💭 Q5. 최종 성찰 질문 2</span>
+        <span id="lockStatusQ5" class="lock-status">🔒 (Q4를 먼저 완료하세요)</span>
+      </div>
+      <div class="question-desc">'관찰 위치 변화 → 연주시차 → 파섹'으로 이어지는 관계를 한 문장으로 연결해 설명해 보세요.</div>
+      <textarea id="q5_text" class="text-input-full" placeholder="세 가지 개념을 모두 포함하여 연결해서 설명해 보세요." disabled></textarea>
+      <button id="btnQ5" class="btn" style="margin-top: 10px; width: 100%;" onclick="checkQ5()" disabled>Q5 작성 확인</button>
+      <div id="q5-feedback" class="feedback"></div>
+    </div>
+
+    <!-- 하단 액션 버튼 -->
+    <div class="action-row">
+      <p id="submitStatusText" style="margin-bottom: 12px; color: #ef4444; font-size: 0.95rem;">
+        🔒 모든 질문(Q1~Q5)을 완료하면 제출 버튼이 활성화됩니다.
+      </p>
+      <button id="btnFinish" class="btn btn-submit" onclick="finishAll()" disabled>🎉 전체 탐구 보고서 제출 완료</button>
+      
+      <!-- 선생님 확인용 안내 문구 영역 -->
+      <div id="teacherNotice" class="submit-notice">
+        📢 선생님께 해당 화면을 보여주세요!
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // 정답 통과 상태 변수
+  let isQ1Passed = false;
+  let isQ2Passed = false;
+  let isQ3Passed = false;
+  let isQ4Passed = false;
+  let isQ5Passed = false;
+
+  // Q1 채점
+  function checkQ1() {
+    const a1 = document.getElementById('q1_1').value.trim();
+    const a2 = document.getElementById('q1_2').value.trim();
+    const fb = document.getElementById('q1-feedback');
+
+    const isA1Correct = a1.includes('절반') || a1.includes('1/2') || a1.includes('반') || a1 === '1/2';
+    const isA2Correct = a2.includes('초') || a2.includes('″') || a2.includes('아크초') || a2.includes('arcsec');
+
+    if (isA1Correct && isA2Correct) {
+      isQ1Passed = true;
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정답입니다! 연주시차는 시차의 절반(&frac12;) 각도이며, 단위는 초(″)를 사용합니다.';
+      
+      // Q2 해제
+      unlockSection('q2Box', 'lockStatusQ2', ['q2_1', 'q2_2'], 'btnQ2');
+    } else {
+      isQ1Passed = false;
+      fb.className = 'feedback incorrect';
+      fb.innerText = '❌ 오답입니다. 1) 시차의 얼마만큼의 값인지, 2) 연주시차의 단위(초 또는 ″)를 다시 점검하세요!';
+    }
+    checkAllQuestionsPassed();
+  }
+
+  // Q2 채점
+  function checkQ2() {
+    const a1 = document.getElementById('q2_1').value.trim();
+    const a2 = document.getElementById('q2_2').value.trim();
+    const fb = document.getElementById('q2-feedback');
+
+    const isA1Correct = a1.includes('작') || a1.includes('줄어');
+    const isA2Correct = a2.includes('거리') || a2.includes('위치');
+
+    if (isA1Correct && isA2Correct) {
+      isQ2Passed = true;
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정답입니다! 멀리 있는 별일수록 연주시차가 작아지며, 이를 통해 별까지의 거리를 알아낼 수 있습니다.';
+      
+      // Q3 해제
+      unlockSection('q3Box', 'lockStatusQ3', ['q3_1', 'q3_2', 'q3_3'], 'btnQ3');
+    } else {
+      isQ2Passed = false;
+      fb.className = 'feedback incorrect';
+      fb.innerText = '❌ 오답입니다. 멀리 있는 별의 연주시차가 어떻게 변하는지, 이를 통해 별의 무엇을 알 수 있는지 떠올려 보세요!';
+    }
+    checkAllQuestionsPassed();
+  }
+
+  // Q3 채점
+  function checkQ3() {
+    const a1 = document.getElementById('q3_1').value.trim();
+    const a2 = document.getElementById('q3_2').value.trim().replace(/\s+/g, '');
+    const a3 = document.getElementById('q3_3').value.trim().replace(/\s+/g, '').toLowerCase();
+    const fb = document.getElementById('q3-feedback');
+
+    const isA1Correct = a1.includes('1초') || a1.includes('1″') || a1 === '1' || a1.includes('1');
+    const isA2Correct = a2 === '연주시차분의일' || a2 === '연주시차분의1';
+    const isA3Correct = a3.includes('100pc') || a3 === '100pc' || a3.includes('100파섹') || a3.includes('100');
+
+    if (isA1Correct && isA2Correct && isA3Correct) {
+      isQ3Passed = true;
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정답입니다! 1 pc는 연주시차가 1″인 거리이며, 별까지의 거리는 "연주시차 분의 일"이고, 대략 100pc 범위까지 측정이 가능합니다.';
+      
+      // Q4 해제
+      unlockSection('q4Box', 'lockStatusQ4', ['q4_text'], 'btnQ4');
+    } else {
+      isQ3Passed = false;
+      fb.className = 'feedback incorrect';
+      fb.innerText = '❌ 오답입니다. 1) 1pc의 기준 연주시차, 2) 거리 공식 말 표현(연주시차 분의 일), 3) 연주시차로 측정 가능한 한계 거리를 점검하세요!';
+    }
+    checkAllQuestionsPassed();
+  }
+
+  // Q4 서술형 채점
+  function checkQ4() {
+    const text = document.getElementById('q4_text').value.trim();
+    const fb = document.getElementById('q4-feedback');
+
+    if (text.length < 2) {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '⚠️ 답변을 입력해 주세요!';
+      return;
+    }
+
+    const targetKeywords = ['작', '없', '안', '움직', '변하', '미세', '한계', '어렵', '불가', '0', 'zero', '가깝', '못'];
+    const isCorrect = targetKeywords.some(keyword => text.includes(keyword));
+
+    if (isCorrect) {
+      isQ4Passed = true;
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정답입니다! 멀리 있는 별은 연주시차가 너무 작거나 거리가 너무 멀어서 거의 움직이지 않는 것처럼 보이기 때문에 연주시차로 거리를 구할 수 없습니다.';
+      
+      // Q5 해제
+      unlockSection('q5Box', 'lockStatusQ5', ['q5_text'], 'btnQ5');
+    } else {
+      isQ4Passed = false;
+      fb.className = 'feedback incorrect';
+      fb.innerText = '💡 멀리 있는 별의 연주시차 크기가 어떠한지, 또는 그 별이 움직여 보이는지 생각해 보며 작성해 보세요!';
+    }
+    checkAllQuestionsPassed();
+  }
+
+  // Q5 서술형 채점
+  function checkQ5() {
+    const text = document.getElementById('q5_text').value.trim();
+    const fb = document.getElementById('q5-feedback');
+
+    if (text.length < 4) {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '⚠️ 세 가지 개념이 포함되도록 작성해 보세요!';
+      return;
+    }
+
+    const hasLocation = text.includes('위치') || text.includes('관찰') || text.includes('공전') || text.includes('변');
+    const hasParallax = text.includes('연주시차') || text.includes('시차');
+    const hasParsec = text.includes('파섹') || text.includes('pc') || text.includes('PC') || text.includes('거리') || text.includes('단위');
+
+    if (hasLocation && hasParallax && hasParsec) {
+      isQ5Passed = true;
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정확하게 잘 작성했습니다! 관찰 위치가 변함에 따라 연주시차가 발생하고, 이를 활용해 파섹(pc)이라는 거리 단위를 정의하여 별까지의 거리를 측정합니다.';
+    } else {
+      isQ5Passed = false;
+      fb.className = 'feedback incorrect';
+      fb.innerText = '💡 "관찰 위치(변화)", "연주시차(생김)", "파섹(거리)" 개념이 잘 연결되도록 작성해 보세요!';
+    }
+    checkAllQuestionsPassed();
+  }
+
+  // 다음 문제 영역 해제 처리 함수
+  function unlockSection(boxId, statusId, inputIds, btnId) {
+    const box = document.getElementById(boxId);
+    const status = document.getElementById(statusId);
+    const btn = document.getElementById(btnId);
+
+    box.classList.remove('locked');
+    status.innerText = '🔓 진행 중';
+    status.style.color = '#22c55e';
+    btn.disabled = false;
+
+    inputIds.forEach(id => {
+      document.getElementById(id).disabled = false;
+    });
+  }
+
+  // 전체 통과 확인 및 제출 버튼 활성화
+  function checkAllQuestionsPassed() {
+    const btnFinish = document.getElementById('btnFinish');
+    const statusText = document.getElementById('submitStatusText');
+
+    if (isQ1Passed && isQ2Passed && isQ3Passed && isQ4Passed && isQ5Passed) {
+      btnFinish.disabled = false;
+      statusText.innerText = '🔓 모든 질문이 완료되었습니다! 버튼을 눌러 제출을 완료하세요.';
+      statusText.style.color = '#22c55e';
+    } else {
+      btnFinish.disabled = true;
+      statusText.innerText = '🔒 모든 질문(Q1~Q5)을 완료하면 제출 버튼이 활성화됩니다.';
+      statusText.style.color = '#ef4444';
+    }
+  }
+
+  // 최종 제출 처리 함수
+  function finishAll() {
+    if (isQ1Passed && isQ2Passed && isQ3Passed && isQ4Passed && isQ5Passed) {
+      alert('🎉 탐구 보고서 제출이 완료되었습니다!\n\n선생님께 해당 화면을 보여주세요.');
+      document.getElementById('teacherNotice').style.display = 'block';
+    }
+  }
+</script>
+</body>
+</html>
