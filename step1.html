@@ -382,11 +382,11 @@
     }
 
     let errors = [];
-    if (tLeft < 7.0 || tLeft > 8.0) errors.push('1-1. 나무(왼쪽) 번호는 7~8 사이로 적어주세요.');
-    if (tRight < 3.0 || tRight > 4.0) errors.push('1-2. 나무(오른쪽) 번호는 3~4 사이로 적어주세요.');
+    if (tLeft < 7.0 || tLeft > 8.0) errors.push('1-1. 나무(왼쪽) 번호 다시 적어주세요.');
+    if (tRight < 3.0 || tRight > 4.0) errors.push('1-2. 나무(오른쪽) 번호 다시 적어주세요.');
     
-    if (mLeft < 6.0 || mLeft > 7.0) errors.push('1-3. 산(왼쪽) 번호는 4~7 사이로 적어주세요.');
-    if (mRight < 4.0 || mRight > 5.0) errors.push('1-4. 산(오른쪽) 번호는 4~7 사이로 적어주세요.');
+    if (mLeft < 6.0 || mLeft > 7.0) errors.push('1-3. 산(왼쪽) 번호 다시 적어주세요.');
+    if (mRight < 4.0 || mRight > 5.0) errors.push('1-4. 산(오른쪽) 번호 다시 적어주세요.');
 
     if (errors.length === 0) {
       fb.className = 'feedback correct';
