@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>별과 우주: STEP 2 - 하늘에 있는 별도 위치가 달라 보일까?</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #38bdf8;
+      --accent-hover: #0284c7;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --correct-color: #22c55e;
+      --incorrect-color: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: var(--accent-color);
+      margin-bottom: 6px;
+    }
+
+    .step-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      border: 1px solid #334155;
+    }
+
+    .step-title {
+      font-size: 1.3rem;
+      color: var(--accent-color);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-badge {
+      background: #0284c7;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .thought-connection {
+      background: #0f172a;
+      padding: 14px 18px;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-color);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+
+    .thought-connection strong {
+      color: #fde047;
+    }
+
+    canvas {
+      width: 100%;
+      height: 320px;
+      background-color: #020617;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #475569;
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      background: #0f172a;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .controls label { font-size: 0.95rem; font-weight: 500; }
+    .controls input[type="range"] { flex: 1; cursor: pointer; }
+
+    .quiz-box, .essay-box {
+      background: #0f172a;
+      padding: 18px;
+      border-radius: 8px;
+      margin-top: 18px;
+      border: 1px solid #334155;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      color: #f8fafc;
+    }
+
+    .ox-options {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .ox-btn {
+      flex: 1;
+      padding: 12px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      background: #1e293b;
+      color: var(--text-color);
+      border: 2px solid #475569;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ox-btn:hover {
+      border-color: var(--accent-color);
+      background: #334155;
+    }
+
+    .ox-btn.selected {
+      background: var(--accent-color);
+      color: #0f172a;
+      border-color: var(--accent-color);
+    }
+
+    .fill-blank-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    select {
+      padding: 8px 14px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .btn {
+      background-color: var(--accent-color);
+      color: #0f172a;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover { background-color: var(--accent-hover); color: #fff; }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      display: none;
+    }
+    .feedback.correct { background: rgba(34, 197, 94, 0.2); color: var(--correct-color); border: 1px solid var(--correct-color); display: block; }
+    .feedback.incorrect { background: rgba(239, 68, 68, 0.2); color: var(--incorrect-color); border: 1px solid var(--incorrect-color); display: block; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🌌 별과 우주 탐구 시뮬레이션</h1>
+    <p>STEP 2: 하늘에 있는 별도 위치가 달라 보일까?</p>
+  </header>
+
+  <div class="step-card">
+    <div class="step-title">
+      <span class="step-badge">STEP 2</span>
+      하늘에 있는 별도 위치가 달라 보일까?
+    </div>
+
+    <!-- 사고의 연결 -->
+    <div class="thought-connection">
+      💡 <strong>사고의 연결:</strong> "내 눈앞의 연필처럼, 밤하늘의 별도 관측 위치를 조금 바꿔서 보면 위치가 달라 보일까요?"
+    </div>
+
+    <!-- 시뮬레이션 설명 -->
+    <p style="margin-bottom: 12px; color: var(--text-muted); font-size: 0.95rem;">
+      아래 슬라이더를 움직여 <strong>관찰자가 제자리에서 한두 걸음 오가는 상황</strong>을 만들어 보세요. 밤하늘 별의 위치가 어떻게 보이는지 확인해 봅시다.
+    </p>
+
+    <canvas id="canvasStep2"></canvas>
+
+    <div class="controls">
+      <label for="walkPos">🚶 관찰자의 걸음 (왼쪽 ↔ 오른쪽):</label>
+      <input type="range" id="walkPos" min="-10" max="10" value="0">
+      <span id="walk-text" style="font-size: 0.9rem; color: #38bdf8; min-width: 120px; text-align: right;">0걸음 (제자리)</span>
+    </div>
+
+    <!-- 발견 유도 질문 -->
+    <div class="quiz-box" style="border-left: 4px solid #fde047;">
+      <div class="question-title">🔍 발견 유도 질문</div>
+      <p style="font-size: 0.95rem; color: #cbd5e1;">
+        관찰자가 몇 걸음 걸어갈 때는 왜 별이 가리키는 배경 별자리의 위치가 <strong>전혀 변해 보이지 않을까요?</strong>
+      </p>
+    </div>
+
+    <!-- OX 퀴즈 -->
+    <div class="quiz-box">
+      <div class="question-title">❓ OX 퀴즈</div>
+      <p style="font-size: 0.95rem;">
+        "별은 너무 멀리 있기 때문에 사람이 걸어서 조금 이동하는 것으로는 위치 변화(시차)를 느끼기 어렵다."
+      </p>
+      <div class="ox-options">
+        <button class="ox-btn" onclick="selectOX('O')">O (맞다)</button>
+        <button class="ox-btn" onclick="selectOX('X')">X (틀리다)</button>
+      </div>
+      <div id="ox-feedback" class="feedback"></div>
+    </div>
+
+    <!-- 학생 스스로 정리 -->
+    <div class="essay-box">
+      <div class="question-title">📝 학생 스스로 정리하기</div>
+      <div class="fill-blank-group">
+        <span>별에서도 위치 변화(시차)를 느끼려면 내가 관측 위치를</span>
+        <select id="blankChoice">
+          <option value="">-- 선택 --</option>
+          <option value="많이">엄청나게 많이</option>
+          <option value="조금">조금만</option>
+        </select>
+        <span>이동해야 한다.</span>
+      </div>
+      <button class="btn" style="margin-top: 14px; width: 100%;" onclick="checkFinalSummary()">정리 확인하기</button>
+      <div id="summary-feedback" class="feedback"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvasStep2');
+  const ctx = canvas.getContext('2d');
+  const walkInput = document.getElementById('walkPos');
+  const walkText = document.getElementById('walk-text');
+
+  function draw() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    const w = canvas.width;
+    const h = canvas.height;
+    const steps = parseInt(walkInput.value);
+
+    walkText.innerText = steps === 0 ? '0걸음 (제자리)' : `${Math.abs(steps)}걸음 (${steps < 0 ? '왼쪽' : '오른쪽'})`;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, w, h);
+
+    // 1. 아주 먼 배경 별자리 (상단)
+    const margin = 40;
+    const numSpacing = (w - margin * 2) / 7;
+
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(10, 15, w - 20, 45);
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(10, 15, w - 20, 45);
+
+    for (let i = 0; i < 8; i++) {
+      const x = margin + i * numSpacing;
+      ctx.fillStyle = '#64748b';
+      ctx.beginPath();
+      ctx.arc(x, 26, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = 'bold 14px Pretendard, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`배경 ${i + 1}`, x, 48);
+    }
+
+    // 2. 별과 고정된 배경 상의 빨간 점 위치
+    const starX = w / 2;
+    const starY = 110;
+
+    // 빨간 점: 배경 판 중앙(배경 4~5 사이)에 고정
+    const redDotX = w / 2;
+    const redDotY = 37;
+
+    // 3. 별 ↔ 고정된 빨간 점을 연결하는 노란 점선
+    ctx.strokeStyle = '#facc15';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(starX, starY);
+    ctx.lineTo(redDotX, redDotY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 배경 상의 고정된 빨간 점
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(redDotX, redDotY, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 별 (노란 동그라미)
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.arc(starX, starY, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowColor = '#facc15';
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#fef08a';
+    ctx.font = '12px Pretendard, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('⭐ 별', starX, starY + 22);
+
+    // 4. 관찰자 (사람) - 걸음에 따라 양옆으로 이동
+    const observerX = (w / 2) + steps * (w * 0.025);
+    const observerY = h - 35;
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(observerX, observerY - 10, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(observerX - 5, observerY - 1, 10, 16);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '12px Pretendard, sans-serif';
+    ctx.fillText('🚶 사람', observerX, observerY + 28);
+  }
+
+  walkInput.addEventListener('input', draw);
+
+  // OX 퀴즈 처리
+  let selectedOXVal = null;
+  function selectOX(ans) {
+    selectedOXVal = ans;
+    const btns = document.querySelectorAll('.ox-btn');
+    btns.forEach(b => b.classList.remove('selected'));
+
+    if (ans === 'O') btns[0].classList.add('selected');
+    else btns[1].classList.add('selected');
+
+    const fb = document.getElementById('ox-feedback');
+    if (ans === 'O') {
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정답입니다! (O) 별은 지구와 엄청나게 멀리 떨어져 있어서 사람이 몇 걸음 걸어가는 정도로는 시선 방향의 변화를 전혀 느낄 수 없습니다.';
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '❌ 다시 생각해 보세요. 몇 걸음 걸어갈 때 별의 위치가 달라져 보였나요? 별은 너무 멀리 있어서 위치 변화가 보이지 않습니다.';
+    }
+  }
+
+  // 최종 정리 채점
+  function checkFinalSummary() {
+    const val = document.getElementById('blankChoice').value;
+    const fb = document.getElementById('summary-feedback');
+
+    if (!val) {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '⚠️ 빈칸에 들어갈 단어를 선택해 주세요!';
+      return;
+    }
+
+    if (val === '많이') {
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 완벽하게 정리하셨습니다! 사람이 몇 걸음 걸어가는 정도가 아니라, 지구가 태양 주위를 도는 것처럼 "엄청나게 먼 거리"를 이동해야 비로소 별의 위치 변화가 보입니다.';
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '❌ 다시 선택해 보세요. 조금 이동했을 때는 별의 위치 변화가 전혀 관찰되지 않았습니다.';
+    }
+  }
+
+  window.addEventListener('resize', draw);
+  draw();
+</script>
+</body>
+</html>
+<!-- ================= [STEP 2 하단 이동 버튼 및 자동 감지 스크립트] ================= -->
+<div style="margin-top: 30px; text-align: right;">
+  <button id="nextBtn" class="btn" onclick="goToNext()" disabled style="opacity: 0.5; cursor: not-allowed; background-color: #475569; color: #94a3b8; padding: 12px 24px; font-weight: bold; border-radius: 8px; border: none; transition: all 0.3s;">
+    🔒 STEP 2 미션을 완료하면 STEP 3으로 이동할 수 있습니다
+  </button>
+</div>
+
+<script>
+  // 버튼 잠금 해제 함수
+  function unlockNextStep() {
+    const nextBtn = document.getElementById('nextBtn');
+    if (nextBtn) {
+      nextBtn.disabled = false;
+      nextBtn.style.opacity = '1';
+      nextBtn.style.cursor = 'pointer';
+      nextBtn.style.backgroundColor = '#38bdf8';
+      nextBtn.style.color = '#0f172a';
+      nextBtn.innerText = 'STEP 3: 지구 공전과 연주시차 이해하기 ➔';
+    }
+  }
+
+  // 페이지 이동 함수
+  function goToNext() {
+    const nextBtn = document.getElementById('nextBtn');
+    if (nextBtn && !nextBtn.disabled) {
+      location.href = 'step3.html';
+    }
+  }
+
+  // 피드백 감지 및 잠금 해제 스크립트
+  const observer2 = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      const el = mutation.target;
+      const text = el.innerText || el.textContent || '';
+      if (el.classList.contains('correct') || text.includes('정답') || text.includes('완료')) {
+        unlockNextStep();
+      }
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // 모든 feedback 클래스 및 feedback ID를 감시
+    const targets = document.querySelectorAll('.feedback, [id*="feedback"], [class*="feedback"]');
+    targets.forEach(function(el) {
+      observer2.observe(el, { attributes: true, childList: true, characterData: true, subtree: true });
+    });
+  });
+</script>
+<!-- =================================================================================== -->

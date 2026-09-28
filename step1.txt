@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>별과 우주: 연주시차 탐구 시뮬레이션 (Step 1)</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #38bdf8;
+      --accent-hover: #0284c7;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --correct-color: #22c55e;
+      --incorrect-color: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: var(--accent-color);
+      margin-bottom: 6px;
+    }
+
+    .step-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      border: 1px solid #334155;
+    }
+
+    .step-title {
+      font-size: 1.3rem;
+      color: var(--accent-color);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-badge {
+      background: #0369a1;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    canvas {
+      width: 100%;
+      height: 320px;
+      background-color: #020617;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #475569;
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      background: #0f172a;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .controls label { font-size: 0.95rem; font-weight: 500; }
+    .controls input[type="range"] { flex: 1; cursor: pointer; }
+
+    .btn {
+      background-color: var(--accent-color);
+      color: #0f172a;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover { background-color: var(--accent-hover); color: #fff; }
+
+    .quiz-box, .essay-box {
+      background: #0f172a;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+      border-left: 4px solid var(--accent-color);
+    }
+
+    .quiz-title, .essay-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .number-readings {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .reading-item {
+      background: #1e293b;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+    }
+
+    .reading-item label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--accent-color);
+      margin-bottom: 6px;
+    }
+
+    .reading-item input {
+      width: 100%;
+      padding: 8px 10px;
+      background: #0f172a;
+      border: 1px solid #475569;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      width: 100%;
+      height: 85px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #fff;
+      padding: 10px;
+      border-radius: 6px;
+      resize: vertical;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    textarea:focus { outline: none; border-color: var(--accent-color); }
+
+    .feedback {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .feedback.correct { background: rgba(34, 197, 94, 0.2); color: var(--correct-color); border: 1px solid var(--correct-color); display: block; }
+    .feedback.partial { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid #eab308; display: block; }
+    .feedback.incorrect { background: rgba(239, 68, 68, 0.2); color: var(--incorrect-color); border: 1px solid var(--incorrect-color); display: block; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🌌 연주시차 탐구 시뮬레이션</h1>
+    <p>STEP 1. 가까운 물체와 먼 물체의 위치 변화 비교</p>
+  </header>
+
+  <!-- STEP 1 -->
+  <div class="step-card" id="step1">
+    <div class="step-title">
+      <span class="step-badge">STEP 1</span>
+      가까운 물체와 먼 물체의 위치 변화 측정
+    </div>
+    <p style="margin-bottom: 12px; color: var(--text-muted);">
+      관찰자 슬라이더를 <strong>가장 왼쪽(-100)</strong>과 <strong>가장 오른쪽(+100)</strong>으로 움직여보세요.<br>
+      빨간색/파란색 가이드선이 가리키는 <strong>상단 번호판(1~10번)</strong>의 숫자를 읽어 기록해보세요.
+    </p>
+
+    <canvas id="canvas1"></canvas>
+
+    <div class="controls">
+      <label for="pos1">관찰자 위치 조절:</label>
+      <input type="range" id="pos1" min="-100" max="100" value="0">
+      <span id="pos1-text" style="font-size: 0.9rem; min-width: 110px; text-align: right;">관찰자: 중앙 (0)</span>
+    </div>
+
+    <!-- 관찰 번호 기록 문제 -->
+    <div class="quiz-box">
+      <div class="quiz-title">📍 [관찰 기록하기] 관찰자 위치에 따른 배경 번호 읽기</div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">
+        슬라이더를 최대로 옮겨 가이드 점선이 가리키는 배경 번호판(1~10)의 위치를 적어보세요.
+      </p>
+      <div class="number-readings">
+        <div class="reading-item">
+          <label>1-1. 관찰자 [왼쪽 -100] 때 빨간 나무 번호:</label>
+          <input type="text" id="read-tree-left" placeholder="3 ~ 8 사이 입력">
+        </div>
+        <div class="reading-item">
+          <label>1-2. 관찰자 [오른쪽 +100] 때 빨간 나무 번호:</label>
+          <input type="text" id="read-tree-right" placeholder="3 ~ 8 사이 입력">
+        </div>
+        <div class="reading-item">
+          <label>1-3. 관찰자 [왼쪽 -100] 때 먼 산 번호:</label>
+          <input type="text" id="read-mountain-left" placeholder="4 ~ 7 사이 입력">
+        </div>
+        <div class="reading-item">
+          <label>1-4. 관찰자 [오른쪽 +100] 때 먼 산 번호:</label>
+          <input type="text" id="read-mountain-right" placeholder="4 ~ 7 사이 입력">
+        </div>
+      </div>
+      <button class="btn" style="margin-top: 12px; width: 100%;" onclick="checkReadings1()">관찰 결과 확인 및 정답 채점</button>
+      <div id="readings-feedback-1" class="feedback"></div>
+    </div>
+
+    <!-- 서술형 정리 -->
+    <div class="essay-box">
+      <div class="essay-title">📝 스스로 정리하기 (쉽게 알게 된 점 적기)</div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">
+        관찰자의 위치가 달라졌을 때, <strong>[가까운 나무]</strong>와 <strong>[먼 산]</strong> 중 어느 것의 배경 번호가 더 많이 변했나요? <br>
+        이를 바탕으로 <strong>"물체가 가까울수록 위치 변화(시차)는 어떻다"</strong>라고 말할 수 있는지 적어보세요.
+      </p>
+      <textarea id="essay1" placeholder="예시: 가까이 있는 나무의 번호가 더 크게 변했습니다. 따라서 가까운 물체일수록 위치 변화가 더 큽니다."></textarea>
+      <button class="btn" style="margin-top: 8px;" onclick="gradeEssay(1)">작성 완료 및 AI 채점</button>
+      <div id="essay-feedback-1" class="feedback"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const studentData = JSON.parse(localStorage.getItem('studentData') || '{}');
+
+  function saveData(step, type, question, answer, isCorrect, feedback) {
+    if (!studentData[`step${step}`]) studentData[`step${step}`] = {};
+    studentData[`step${step}`][type] = { question, answer, isCorrect, feedback };
+    localStorage.setItem('studentData', JSON.stringify(studentData));
+  }
+
+  // --- STEP 1 Canvas Render ---
+  const canvas1 = document.getElementById('canvas1');
+  const ctx1 = canvas1.getContext('2d');
+  const pos1Input = document.getElementById('pos1');
+  const pos1Text = document.getElementById('pos1-text');
+
+  function drawStep1() {
+    canvas1.width = canvas1.clientWidth;
+    canvas1.height = canvas1.clientHeight;
+    const w = canvas1.width;
+    const h = canvas1.height;
+    const val = parseInt(pos1Input.value);
+
+    if (val < -10) pos1Text.innerText = `관찰자: 왼쪽 (${val})`;
+    else if (val > 10) pos1Text.innerText = `관찰자: 오른쪽 (+${val})`;
+    else pos1Text.innerText = `관찰자: 중앙 (${val})`;
+
+    ctx1.clearRect(0, 0, w, h);
+
+    ctx1.fillStyle = '#020617';
+    ctx1.fillRect(0, 0, w, h);
+
+    const margin = 50;
+    const numSpacing = (w - margin * 2) / 9;
+
+    ctx1.fillStyle = '#1e293b';
+    ctx1.fillRect(10, 20, w - 20, 50);
+    ctx1.strokeStyle = '#475569';
+    ctx1.lineWidth = 1;
+    ctx1.strokeRect(10, 20, w - 20, 50);
+
+    for (let i = 0; i < 10; i++) {
+      const numX = margin + i * numSpacing;
+      ctx1.strokeStyle = '#94a3b8';
+      ctx1.beginPath();
+      ctx1.moveTo(numX, 20);
+      ctx1.lineTo(numX, 40);
+      ctx1.stroke();
+
+      ctx1.fillStyle = '#f8fafc';
+      ctx1.font = 'bold 15px Pretendard, sans-serif';
+      ctx1.textAlign = 'center';
+      ctx1.fillText(`${i + 1}`, numX, 62);
+    }
+
+    const obsOffset = (val / 100) * (w * 0.22);
+    const treeX = (w / 2) - obsOffset;          
+    const mountainX = (w / 2) - (obsOffset * 0.25); 
+
+    ctx1.fillStyle = '#2563eb';
+    ctx1.beginPath();
+    ctx1.moveTo(mountainX - 100, h - 70);
+    ctx1.lineTo(mountainX, h - 210);
+    ctx1.lineTo(mountainX + 100, h - 70);
+    ctx1.fill();
+    ctx1.strokeStyle = '#60a5fa';
+    ctx1.lineWidth = 2;
+    ctx1.stroke();
+
+    ctx1.fillStyle = '#93c5fd';
+    ctx1.font = 'bold 13px Pretendard, sans-serif';
+    ctx1.textAlign = 'center';
+    ctx1.fillText('[먼 물체] 파란 산', mountainX, h - 220);
+
+    const treeGroundY = h - 70;
+    ctx1.fillStyle = '#b45309'; 
+    ctx1.fillRect(treeX - 12, treeGroundY - 60, 24, 60);
+
+    ctx1.fillStyle = '#22c55e'; 
+    ctx1.beginPath();
+    ctx1.arc(treeX, treeGroundY - 80, 38, 0, Math.PI * 2);
+    ctx1.fill();
+
+    ctx1.fillStyle = '#fca5a5';
+    ctx1.font = 'bold 13px Pretendard, sans-serif';
+    ctx1.fillText('[가까운 물체] 빨간 나무', treeX, treeGroundY - 125);
+
+    ctx1.fillStyle = '#334155';
+    ctx1.fillRect(0, h - 70, w, 70);
+
+    const eyeX = w / 2 + (val / 100) * (w * 0.35);
+    const eyeY = h - 35;
+
+    ctx1.fillStyle = '#fde047';
+    ctx1.beginPath();
+    ctx1.arc(eyeX, eyeY - 15, 12, 0, Math.PI * 2); 
+    ctx1.fill();
+    ctx1.fillRect(eyeX - 8, eyeY - 3, 16, 22); 
+
+    ctx1.fillStyle = '#fde047';
+    ctx1.font = 'bold 13px Pretendard, sans-serif';
+    ctx1.fillText('👀 관찰자 (나)', eyeX, eyeY + 28);
+
+    ctx1.strokeStyle = 'rgba(239, 68, 68, 0.7)';
+    ctx1.setLineDash([3, 3]);
+    ctx1.lineWidth = 2;
+    ctx1.beginPath();
+    ctx1.moveTo(treeX, treeGroundY - 120);
+    ctx1.lineTo(treeX, 65);
+    ctx1.stroke();
+
+    ctx1.strokeStyle = 'rgba(96, 165, 250, 0.7)';
+    ctx1.beginPath();
+    ctx1.moveTo(mountainX, h - 210);
+    ctx1.lineTo(mountainX, 65);
+    ctx1.stroke();
+    ctx1.setLineDash([]);
+  }
+
+  pos1Input.addEventListener('input', drawStep1);
+  window.addEventListener('resize', drawStep1);
+  drawStep1();
+
+  function checkReadings1() {
+    const tLeft = parseFloat(document.getElementById('read-tree-left').value);
+    const tRight = parseFloat(document.getElementById('read-tree-right').value);
+    const mLeft = parseFloat(document.getElementById('read-mountain-left').value);
+    const mRight = parseFloat(document.getElementById('read-mountain-right').value);
+    const fb = document.getElementById('readings-feedback-1');
+
+    if (isNaN(tLeft) || isNaN(tRight) || isNaN(mLeft) || isNaN(mRight)) {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '⚠️ 4개 칸의 위치 번호를 모두 숫자로 입력해 주세요!';
+      return;
+    }
+
+    let errors = [];
+    if (tLeft < 3.0 || tLeft > 8.0) errors.push('1-1. 나무(왼쪽) 번호는 3~8 사이로 적어주세요.');
+    if (tRight < 3.0 || tRight > 8.0) errors.push('1-2. 나무(오른쪽) 번호는 3~8 사이로 적어주세요.');
+    
+    if (mLeft < 4.0 || mLeft > 7.0) errors.push('1-3. 산(왼쪽) 번호는 4~7 사이로 적어주세요.');
+    if (mRight < 4.0 || mRight > 7.0) errors.push('1-4. 산(오른쪽) 번호는 4~7 사이로 적어주세요.');
+
+    if (errors.length === 0) {
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정답입니다! 잘 관찰하여 잘 작성해 주셨습니다.';
+      saveData(1, 'reading', 'Step1 배경 번호 관찰 기록', `나무:[왼:${tLeft}, 오:${tRight}], 산:[왼:${mLeft}, 오:${mRight}]`, true, fb.innerText);
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerText = `❌ 다음 항목을 확인해 주세요:\n• ${errors.join('\n• ')}`;
+      saveData(1, 'reading', 'Step1 배경 번호 관찰 기록', `나무:[왼:${tLeft}, 오:${tRight}], 산:[왼:${mLeft}, 오:${mRight}]`, false, fb.innerText);
+    }
+  }
+
+  // --- 대폭 개선된 유연한 서술형 채점 엔진 ---
+  function gradeEssay(step) {
+    const rawText = document.getElementById(`essay${step}`).value.trim();
+    const fbEl = document.getElementById(`essay-feedback-${step}`);
+
+    if (rawText.length < 2) {
+      fbEl.className = 'feedback incorrect';
+      fbEl.innerText = '⚠️ 답안을 작성한 후 채점 버튼을 눌러주세요.';
+      return;
+    }
+
+    // 공백을 모두 제거한 문자열로 비교하여 띄어쓰기 오차 방지
+    const text = rawText.replace(/\s+/g, '');
+
+    // 1. 핵심 키워드 조합 검사
+    const hasNear = ['가까', '나무', '근처'].some(kw => text.includes(kw));
+    const hasBigOrChange = ['크', '많', '변', '움직', '차이', '증가', '멀'].some(kw => text.includes(kw));
+    
+    // 2. 자주 사용되는 명확한 정답 패턴 직접 검사
+    const directCorrectPatterns = [
+      '가까울수록위치변화가크다',
+      '가까울수록위치변화가크',
+      '가까울수록크다',
+      '가까울수록크',
+      '가까울수록변화가크다',
+      '가까울수록변화가크',
+      '가까울수록시차가크다',
+      '가까울수록시차가크',
+      '가까우면크다',
+      '가까운물체일수록위치변화가크다',
+      '가까운물체일수록크다',
+      '나무가더크다',
+      '나무가더많이변한다'
+    ];
+
+    const isDirectMatch = directCorrectPatterns.some(pattern => text.includes(pattern));
+
+    if (isDirectMatch || (hasNear && hasBigOrChange)) {
+      fbEl.className = 'feedback correct';
+      fbEl.innerText = '✅ [AI 채점 - 완벽합니다!] "물체가 가까울수록 위치 변화(시차)가 더 크다"는 핵심 원리를 정확히 이해하고 작성하셨습니다!';
+      saveData(step, 'essay', 'Step1 스스로 정리하기', rawText, true, fbEl.innerText);
+    } else if (hasNear || hasBigOrChange) {
+      fbEl.className = 'feedback partial';
+      fbEl.innerText = '⚠️ [AI 채점 - 조금만 더 보완해볼까요?] "가까울수록 위치 변화가 크다" 또는 "나무의 위치 변화가 더 크다"라는 내용이 명확히 들어가도록 적어보세요.';
+      saveData(step, 'essay', 'Step1 스스로 정리하기', rawText, false, fbEl.innerText);
+    } else {
+      fbEl.className = 'feedback incorrect';
+      fbEl.innerText = '❌ [AI 채점 - 재확인 필요] 시뮬레이션에서 가까운 나무와 먼 산 중 어느 것의 위치가 더 크게 변했는지 확인해보세요.';
+      saveData(step, 'essay', 'Step1 스스로 정리하기', rawText, false, fbEl.innerText);
+    }
+  }
+</script>
+</body>
+</html>
+<!-- ================= [STEP 1 하단 이동 버튼 및 자동 감지 스크립트] ================= -->
+<div style="margin-top: 30px; text-align: right;">
+  <button id="nextBtn" class="btn" onclick="goToNext()" disabled style="opacity: 0.5; cursor: not-allowed; background-color: #475569; color: #94a3b8; padding: 12px 24px; font-weight: bold; border-radius: 8px; border: none; transition: all 0.3s;">
+    🔒 '스스로 정리하기'까지 완료하면 STEP 2로 이동할 수 있습니다
+  </button>
+</div>
+
+<script>
+  // 버튼 잠금 해제 함수
+  function unlockNextStep() {
+    const nextBtn = document.getElementById('nextBtn');
+    if (nextBtn) {
+      nextBtn.disabled = false;
+      nextBtn.style.opacity = '1';
+      nextBtn.style.cursor = 'pointer';
+      nextBtn.style.backgroundColor = '#38bdf8';
+      nextBtn.style.color = '#0f172a';
+      nextBtn.innerText = 'STEP 2: 관찰 위치 변화와 시차 탐구하기 ➔';
+    }
+  }
+
+  // 페이지 이동 함수
+  function goToNext() {
+    const nextBtn = document.getElementById('nextBtn');
+    if (nextBtn && !nextBtn.disabled) {
+      location.href = 'step2.html';
+    }
+  }
+
+  // 피드백 감지 및 잠금 해제 스크립트
+  const observer1 = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      const el = mutation.target;
+      const text = el.innerText || el.textContent || '';
+      if (el.classList.contains('correct') || text.includes('정답') || text.includes('완료')) {
+        unlockNextStep();
+      }
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // 모든 feedback 클래스 및 feedback ID를 감시
+    const targets = document.querySelectorAll('.feedback, [id*="feedback"], [class*="feedback"]');
+    targets.forEach(function(el) {
+      observer1.observe(el, { attributes: true, childList: true, characterData: true, subtree: true });
+    });
+  });
+</script>
+<!-- =================================================================================== -->
