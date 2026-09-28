@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>별과 우주: STEP 4 - 지구가 어디에 있을 때 가장 큰 시차를 관측할 수 있을까?</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #38bdf8;
+      --accent-hover: #0284c7;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --correct-color: #22c55e;
+      --incorrect-color: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #334155;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: var(--accent-color);
+      margin-bottom: 6px;
+    }
+
+    .step-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      border: 1px solid #334155;
+    }
+
+    .step-title {
+      font-size: 1.3rem;
+      color: var(--accent-color);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-badge {
+      background: #0284c7;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .thought-connection {
+      background: #0f172a;
+      padding: 14px 18px;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-color);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+
+    .thought-connection strong {
+      color: #fde047;
+    }
+
+    canvas {
+      width: 100%;
+      height: 420px;
+      background-color: #020617;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #475569;
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #0f172a;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slider-header label {
+      font-size: 0.95rem;
+      font-weight: bold;
+    }
+
+    .month-badge {
+      background: #0284c7;
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .controls input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .quiz-box, .essay-box {
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 18px;
+      border: 1px solid #334155;
+    }
+
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      color: #f8fafc;
+    }
+
+    .fill-blank-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .number-input {
+      width: 70px;
+      padding: 6px 10px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      font-size: 1rem;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .number-input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .guide-prompt {
+      background: #1e293b;
+      padding: 14px 16px;
+      border-radius: 6px;
+      border-left: 3px solid #fde047;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.7;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+
+    /* 잠금 상태 영역 */
+    .locked {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .btn {
+      background-color: var(--accent-color);
+      color: #0f172a;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover { background-color: var(--accent-hover); color: #fff; }
+
+    /* STEP 5 기본 잠금 버튼 스타일 (회색) */
+    .btn-step5 {
+      background-color: #334155 !important;
+      background-image: none !important;
+      color: #94a3b8 !important;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: not-allowed;
+      width: 100%;
+      margin-top: 20px;
+      opacity: 0.6;
+      box-shadow: none !important;
+      transition: all 0.3s;
+    }
+
+    /* 두 문제를 모두 맞혔을 때 활성화되는 스타일 (파란색) */
+    .btn-step5.active {
+      background: linear-gradient(135deg, #38bdf8, #0284c7) !important;
+      color: #ffffff !important;
+      cursor: pointer !important;
+      opacity: 1 !important;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3) !important;
+    }
+
+    .btn-step5.active:hover {
+      background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4) !important;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      display: none;
+    }
+    .feedback.correct { background: rgba(34, 197, 94, 0.2); color: var(--correct-color); border: 1px solid var(--correct-color); display: block; }
+    .feedback.incorrect { background: rgba(239, 68, 68, 0.2); color: var(--incorrect-color); border: 1px solid var(--incorrect-color); display: block; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🌌 별과 우주 탐구 시뮬레이션</h1>
+    <p>STEP 4: 지구가 어디에 있을 때 가장 큰 시차를 관측할 수 있을까?</p>
+  </header>
+
+  <div class="step-card">
+    <div class="step-title">
+      <span class="step-badge">STEP 4</span>
+      지구의 공전과 별의 연주시차
+    </div>
+
+    <!-- 사고의 연결 -->
+    <div class="thought-connection">
+      💡 <strong>사고의 연결:</strong> "인간이 직접 이동할 수 있는 최고 거리가 지구 반대편(12,700km)이었다면, 지구가 **태양 주변을 공전**하는 현상을 이용하면 어떨까요? **6개월 간격**으로 별을 관측하면 지구 공전 궤도 양끝(약 3억 km)이라는 엄청나게 멀리 떨어진 두 관측 지점을 얻을 수 있습니다!"
+    </div>
+
+    <!-- 시뮬레이션 설명 -->
+    <p style="margin-bottom: 12px; color: var(--text-muted); font-size: 0.95rem;">
+      슬라이더를 움직여 <strong>지구의 월별 공전 위치</strong>를 변경해 보세요. 파란색 점선 끝의 <strong>1월 기준점(붉은 점)</strong>과 현재 월의 <strong>관측 위치(노란 점)</strong> 간의 간격 변화를 관찰해 봅시다.
+    </p>
+
+    <canvas id="canvasStep4"></canvas>
+
+    <div class="controls">
+      <div class="slider-header">
+        <label for="monthRange">📅 지구의 관측 위치 (월):</label>
+        <span id="month-text" class="month-badge">1월 (기준 위치)</span>
+      </div>
+      <input type="range" id="monthRange" min="1" max="12" step="1" value="1">
+    </div>
+
+    <!-- 1단계: 단답형 관찰 문제 -->
+    <div class="quiz-box">
+      <div class="question-title">❓ 관찰 확인 문제</div>
+      <div class="fill-blank-group">
+        <span><strong>문제 :</strong> 1월과 (</span>
+        <input type="number" id="monthAnswer" class="number-input" placeholder="월" min="1" max="12">
+        <span>)월에 관측한 별의 시차가 가장 크다.</span>
+      </div>
+      <button class="btn" style="margin-top: 14px; width: 100%;" onclick="checkMonthQuiz()">문제 확인 및 다음 단계 해제</button>
+      <div id="quiz-feedback" class="feedback"></div>
+    </div>
+
+    <!-- 2단계: 서술형 학생 스스로 정리하기 (초기 잠금) -->
+    <div id="essaySection" class="essay-box locked">
+      <div class="question-title">📝 학생 스스로 정리하기 <span id="lockStatus" style="font-size: 0.8rem; color: #ef4444; font-weight: normal;">(🔒 위 문제를 먼저 풀어주세요)</span></div>
+      
+      <div class="guide-prompt">
+        📌 <strong>생각해 볼 문장 예시:</strong><br>
+        "별의 시차를 가장 크게 관측하기 위해서는 지구가 가장 (가까이/멀리) 떨어진 두 위치를 이용한다. 이때 지구의 ( &nbsp;&nbsp;&nbsp;&nbsp; ) 현상을 이용하여 ( &nbsp;&nbsp;&nbsp;&nbsp; )개월 간격으로 별을 관측하면 가장 멀다."
+      </div>
+
+      <textarea id="studentEssay" placeholder="위의 안내 문장을 완성하여 내용을 자유롭게 적어보세요." disabled></textarea>
+      
+      <button id="submitEssayBtn" class="btn" style="margin-top: 12px; width: 100%; font-size: 1rem;" onclick="submitEssay()" disabled>정리 내용 채점하기</button>
+      <div id="essay-feedback" class="feedback"></div>
+    </div>
+
+    <!-- STEP 5 이동 버튼 -->
+    <button id="nextBtn" class="btn-step5" disabled onclick="goToStep5()">🔒 위 탐구 문제들을 모두 맞춰야 STEP 5로 이동할 수 있습니다</button>
+
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvasStep4');
+  const ctx = canvas.getContext('2d');
+  const monthInput = document.getElementById('monthRange');
+  const monthText = document.getElementById('month-text');
+
+  // 정답 완료 상태 변수
+  let isMonthCorrect = false;
+  let isEssayCorrect = false;
+
+  // 두 문제 모두 정답일 때만 버튼을 파란색으로 활성화
+  function checkAllClear() {
+    const nextBtn = document.getElementById('nextBtn');
+    if (isMonthCorrect && isEssayCorrect) {
+      nextBtn.disabled = false;
+      nextBtn.classList.add('active');
+      nextBtn.innerText = 'STEP 5: 연주시차와 거리의 반비례 관계 ➔';
+    } else {
+      nextBtn.disabled = true;
+      nextBtn.classList.remove('active');
+      nextBtn.innerText = '🔒 위 탐구 문제들을 모두 맞춰야 STEP 5로 이동할 수 있습니다';
+    }
+  }
+
+  function draw() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    const w = canvas.width;
+    const h = canvas.height;
+    
+    const month = parseInt(monthInput.value);
+    monthText.innerText = `${month}월 관측`;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, w, h);
+
+    // 1. 배경 별자리 (상단)
+    const margin = 40;
+    const numSpacing = (w - margin * 2) / 7;
+
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(10, 15, w - 20, 45);
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(10, 15, w - 20, 45);
+
+    for (let i = 0; i < 8; i++) {
+      const x = margin + i * numSpacing;
+      ctx.fillStyle = '#64748b';
+      ctx.beginPath();
+      ctx.arc(x, 26, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = 'bold 13px Pretendard, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`배경 ${i + 1}`, x, 48);
+    }
+
+    // 좌표 설정
+    const sunX = w / 2;
+    const sunY = h - 90;
+    const orbitRadiusX = 180;
+    const orbitRadiusY = 40;
+    const starX = w / 2;
+    const starY = 130;
+    const bgY = 37;
+
+    // 2. 지구 공전 궤도 (타원)
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.ellipse(sunX, sunY, orbitRadiusX, orbitRadiusY, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 3. 태양
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, 14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fca5a5';
+    ctx.font = 'bold 12px Pretendard, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('☀️ 태양', sunX, sunY + 28);
+
+    // 4. 지구 위치 계산 (1월이 오른쪽)
+    const angle = ((month - 1) / 12) * Math.PI * 2;
+    const earthX = sunX + orbitRadiusX * Math.cos(angle);
+    const earthY = sunY + orbitRadiusY * Math.sin(angle);
+
+    const earth1JanX = sunX + orbitRadiusX;
+    const earth1JanY = sunY;
+
+    // 5. 시선 투영선 및 배경 위치 계산
+    const ratioCurrent = (bgY - starY) / (earthY - starY);
+    const projCurrentX = starX + (earthX - starX) * ratioCurrent;
+
+    const ratioJan = (bgY - starY) / (earth1JanY - starY);
+    const projJanX = starX + (earth1JanX - starX) * ratioJan;
+
+    // [1월 기준 파란색 점선]
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(earth1JanX, earth1JanY);
+    ctx.lineTo(projJanX, bgY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // [1월 배경 기준점]
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(projJanX, bgY, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#fca5a5';
+    ctx.font = 'bold 11px Pretendard, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('📍 1월 별의 관측 위치', projJanX + 8, bgY + 4);
+
+    // [현재 월 시선선 (노란색 실선)]
+    ctx.strokeStyle = '#fde047';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(earthX, earthY);
+    ctx.lineTo(projCurrentX, bgY);
+    ctx.stroke();
+
+    // 현재 월 배경 관측점 (노란 점)
+    ctx.fillStyle = '#fde047';
+    ctx.beginPath();
+    ctx.arc(projCurrentX, bgY, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 6. 별 표시
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.arc(starX, starY, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowColor = '#facc15';
+    ctx.shadowBlur = 15;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#fef08a';
+    ctx.font = 'bold 13px Pretendard, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('⭐ 별', starX, starY - 18);
+
+    // 7. 지구 표시
+    ctx.fillStyle = '#3b82f6';
+    ctx.beginPath();
+    ctx.arc(earthX, earthY, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#93c5fd';
+    ctx.font = 'bold 12px Pretendard, sans-serif';
+    ctx.fillText(`🌍 지구 (${month}월)`, earthX, earthY - 14);
+
+    // 공전 궤도 지름 표시
+    const earth7JulX = sunX - orbitRadiusX;
+    const earth7JulY = sunY;
+    ctx.strokeStyle = '#22c55e';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(earth1JanX, earth1JanY);
+    ctx.lineTo(earth7JulX, earth7JulY);
+    ctx.stroke();
+
+    ctx.fillStyle = '#4ade80';
+    ctx.font = 'bold 12px Pretendard, sans-serif';
+    ctx.fillText('공전 궤도 지름 (약 3억 km / 2 AU)', sunX, sunY - 12);
+  }
+
+  monthInput.addEventListener('input', draw);
+
+  // 1단계: 단답형 문제 채점
+  function checkMonthQuiz() {
+    const ans = parseInt(document.getElementById('monthAnswer').value);
+    const fb = document.getElementById('quiz-feedback');
+    const essaySection = document.getElementById('essaySection');
+    const studentEssay = document.getElementById('studentEssay');
+    const submitEssayBtn = document.getElementById('submitEssayBtn');
+    const lockStatus = document.getElementById('lockStatus');
+
+    if (ans === 7) {
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정답입니다! 1월과 6개월 뒤인 7월에 관측할 때 지구가 가장 멀리 떨어져 시차가 가장 크게 보입니다. 아래 정리 단계가 해제되었습니다!';
+      
+      isMonthCorrect = true;
+
+      // 아래 영역 잠금 해제
+      essaySection.classList.remove('locked');
+      studentEssay.disabled = false;
+      submitEssayBtn.disabled = false;
+      lockStatus.innerText = '🔓 (해제됨)';
+      lockStatus.style.color = '#22c55e';
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '❌ 오답입니다. 상단 시뮬레이션 슬라이더를 움직여 1월 기준점(붉은 점)과 현재 노란 점의 간격이 가장 넓어지는 월(달)을 찾아보세요!';
+      
+      isMonthCorrect = false;
+
+      // 다시 틀릴 경우 아래 영역 다시 잠금
+      essaySection.classList.add('locked');
+      studentEssay.disabled = true;
+      submitEssayBtn.disabled = true;
+      lockStatus.innerText = '(🔒 위 문제를 먼저 풀어주세요)';
+      lockStatus.style.color = '#ef4444';
+    }
+    checkAllClear();
+  }
+
+  // 2단계: 서술형 채점 함수
+  function submitEssay() {
+    const rawText = document.getElementById('studentEssay').value;
+    const fb = document.getElementById('essay-feedback');
+
+    // 띄어쓰기 제거
+    const text = rawText.replace(/\s+/g, '');
+
+    if (text.length < 5) {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '⚠️ 답변을 입력해 주세요!';
+      isEssayCorrect = false;
+      checkAllClear();
+      return;
+    }
+
+    // 핵심 키워드 검증
+    const hasDist = text.includes('멀리') || text.includes('가장멀리');
+    const hasOrbit = text.includes('공전');
+    const hasMonth = text.includes('6개월') || text.includes('육개월') || text.includes('6달') || text.includes('육달');
+
+    if (hasDist && hasOrbit && hasMonth) {
+      fb.className = 'feedback correct';
+      fb.innerText = '🎉 정답입니다! 탐구 내용을 완벽하게 정리하셨습니다!';
+      isEssayCorrect = true;
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerText = '❌ 핵심 단어가 일부 누락되었습니다. 안내 문장의 키워드(멀리, 공전, 6개월)를 모두 포함하여 적어보세요.';
+      isEssayCorrect = false;
+    }
+    checkAllClear();
+  }
+
+  // STEP 5 이동 함수
+  function goToStep5() {
+    const nextBtn = document.getElementById('nextBtn');
+    if (!nextBtn.disabled && isMonthCorrect && isEssayCorrect) {
+      window.location.href = 'step5.html';
+    }
+  }
+
+  window.addEventListener('resize', draw);
+  draw();
+</script>
+</body>
+</html>
